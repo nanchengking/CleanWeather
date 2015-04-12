@@ -68,7 +68,7 @@ public class CoolWeatherDB {
 	 * @return
 	 */
 
-	public List<Provience> loadProvience() {
+	public List<Provience> loadProviences() {
 		List<Provience> list = new ArrayList<Provience>();
 		Cursor cursor = db.query("Provience", null, null, null, null, null,
 				null);
@@ -96,7 +96,7 @@ public class CoolWeatherDB {
 	 * @param provience
 	 */
 
-	public void saveCitye(City city) {
+	public void saveCity(City city) {
 		if (city != null) {
 			ContentValues values = new ContentValues();
 			values.put("city_name", city.getCityName());
@@ -112,7 +112,7 @@ public class CoolWeatherDB {
 	 * @return
 	 */
 
-	public List<City> loadCity(int provienceId) {
+	public List<City> loadCities(int provienceId) {
 		List<City> list = new ArrayList<City>();
 		Cursor cursor = db.query("City", null, "provience_id=?",
 				new String[] { String.valueOf(provienceId) }, null, null, null);
@@ -157,7 +157,7 @@ public class CoolWeatherDB {
 	 * @return
 	 */
 
-	public List<Country> loadCountry(int cityId) {
+	public List<Country> loadCountries(int cityId) {
 		List<Country> list = new ArrayList<Country>();
 		Cursor cursor = db.query("Country", null, "city_id=?",
 				new String[] { String.valueOf(cityId) }, null, null, null);
