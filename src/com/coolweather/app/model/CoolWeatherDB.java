@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.coolweather.app.db.CoolWeatherOpenHelp;
 
@@ -56,8 +57,8 @@ public class CoolWeatherDB {
 	public void saveProvience(Provience provience) {
 		if (provience != null) {
 			ContentValues values = new ContentValues();
-			values.put("provience_name", provience.getProvienceName());
-			values.put("provience_code", provience.getProvienceCode());
+			values.put("provience_quname", provience.getProvienceQuName());
+			values.put("provience_pyname", provience.getProviencePyName());
 			db.insert("Provience", null, values);
 		}
 	}
@@ -73,14 +74,14 @@ public class CoolWeatherDB {
 		Cursor cursor = db.query("Provience", null, null, null, null, null,
 				null);
 
-		if (cursor.moveToNext()) {
+		if (cursor.moveToFirst()) {
 			do {
 				Provience provience = new Provience();
 				provience.setId(cursor.getInt(cursor.getColumnIndex("id")));
-				provience.setProvienceName(cursor.getString(cursor
-						.getColumnIndex("provience_name")));
-				provience.setProvienceCode(cursor.getString(cursor
-						.getColumnIndex("provience_code")));
+				provience.setProvienceQuName(cursor.getString(cursor
+						.getColumnIndex("provience_quname")));
+				provience.setProviencePyName(cursor.getString(cursor
+						.getColumnIndex("provience_pyname")));
 				list.add(provience);
 			} while (cursor.moveToNext());
 		}
@@ -99,9 +100,9 @@ public class CoolWeatherDB {
 	public void saveCity(City city) {
 		if (city != null) {
 			ContentValues values = new ContentValues();
-			values.put("city_name", city.getCityName());
-			values.put("city_code", city.getCityCode());
-			values.put("provienceId", city.getProvienceId());
+			values.put("city_quname", city.getCityQuName());
+			values.put("city_pyname", city.getCityPyName());
+			values.put("provience_pyname", city.getProviencePyName());
 			db.insert("City", null, values);
 		}
 	}
@@ -112,20 +113,20 @@ public class CoolWeatherDB {
 	 * @return
 	 */
 
-	public List<City> loadCities(int provienceId) {
+	public List<City> loadCities(String provienceId) {
 		List<City> list = new ArrayList<City>();
-		Cursor cursor = db.query("City", null, "provience_id=?",
-				new String[] { String.valueOf(provienceId) }, null, null, null);
+		Cursor cursor = db.query("City", null, "provience_pyname=?",
+				new String[] { provienceId }, null, null, null);
 
-		if (cursor.moveToNext()) {
+		if (cursor.moveToFirst()) {
 			do {
 				City city = new City();
 				city.setId(cursor.getInt(cursor.getColumnIndex("id")));
-				city.setCityName(cursor.getString(cursor
-						.getColumnIndex("city_name")));
-				city.setCityCode(cursor.getString(cursor
-						.getColumnIndex("city_code")));
-				city.setProvienceId(provienceId);
+				city.setCityQuName(cursor.getString(cursor
+						.getColumnIndex("city_quname")));
+				city.setCityPyName(cursor.getString(cursor
+						.getColumnIndex("city_pyname")));
+				city.setProviencePyName(provienceId);
 				list.add(city);
 			} while (cursor.moveToNext());
 		}
@@ -144,9 +145,9 @@ public class CoolWeatherDB {
 	public void saveCountry(Country country) {
 		if (country != null) {
 			ContentValues values = new ContentValues();
-			values.put("counrey_name", country.getCountryName());
-			values.put("country_code", country.getCountryCode());
-			values.put("cityId", country.getCityId());
+			values.put("country_quname", country.getCountryQuName());
+			values.put("country_pyname", country.getCountryPyName());
+			values.put("city_pyname", country.getCityPyName());
 			db.insert("Country", null, values);
 		}
 	}
@@ -157,21 +158,21 @@ public class CoolWeatherDB {
 	 * @return
 	 */
 
-	public List<Country> loadCountries(int cityId) {
+	public List<Country> loadCountries(String cityId) {
 		List<Country> list = new ArrayList<Country>();
-		Cursor cursor = db.query("Country", null, "city_id=?",
-				new String[] { String.valueOf(cityId) }, null, null, null);
+		Cursor cursor = db.query("Country", null, "city_pyname=?",
+				new String[] { cityId }, null, null, null);
 
-		if (cursor.moveToNext()) {
+		if (cursor.moveToFirst()) {
 			do {
-				Country city = new Country();
-				city.setId(cursor.getInt(cursor.getColumnIndex("id")));
-				city.setCountryName(cursor.getString(cursor
-						.getColumnIndex("country_name")));
-				city.setCountryCode(cursor.getString(cursor
-						.getColumnIndex("country_code")));
-				city.setCityId(cityId);
-				list.add(city);
+				Country country = new Country();
+				country.setId(cursor.getInt(cursor.getColumnIndex("id")));
+				country.setCountryQuName(cursor.getString(cursor
+						.getColumnIndex("country_quname")));
+				country.setCountryPyName(cursor.getString(cursor
+						.getColumnIndex("country_pyname")));
+				country.setCityPyName(cityId);
+				list.add(country);
 			} while (cursor.moveToNext());
 		}
 		if (cursor != null) {

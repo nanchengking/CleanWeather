@@ -5,8 +5,10 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -68,11 +70,28 @@ public class ChooseAreaActivity extends Activity {
 	 * 当前的级别
 	 */
 	private int currentLevel;
+	/**
+	 * 是否从weatherActivity跳转过来？
+	 */
+	private boolean isFromWheatherActivity;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		isFromWheatherActivity = getIntent().getBooleanExtra(
+				"from_weather_activity", false);
+
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		if (prefs.getBoolean("country_selected", false)
+				&& !isFromWheatherActivity) {
+			Intent intent = new Intent(this, WeatherActivity.class);
+			startActivity(intent);
+			finish();
+			return;
+		}
 
 		setContentView(R.layout.choose_area);
 
@@ -82,7 +101,7 @@ public class ChooseAreaActivity extends Activity {
 				android.R.layout.simple_list_item_1, dataList);
 		listView.setAdapter(adapter);
 		coolWeatherDB = CoolWeatherDB.getInstance(this);
-		Log.d("Test", "number :"+1);
+		Log.d("Test", "number :" + 1);
 
 		listView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -95,6 +114,17 @@ public class ChooseAreaActivity extends Activity {
 				} else if (currentLevel == LEVEL_CITY) {
 					selectedCity = cityList.get(arg2);
 					queryCountries();
+				} else if (currentLevel == LEVEL_COUNTRY) {
+					String cityPyName = countryList.get(arg2).getCityPyName();
+					String countryQuName = countryList.get(arg2)
+							.getCountryQuName();
+
+					Intent intent = new Intent(ChooseAreaActivity.this,
+							WeatherActivity.class);
+					intent.putExtra("countryQuName", countryQuName);
+					intent.putExtra("cityPyName", cityPyName);
+					startActivity(intent);
+					finish();
 				}
 
 			}
@@ -112,7 +142,7 @@ public class ChooseAreaActivity extends Activity {
 		if (provienceList.size() > 0) {
 			dataList.clear();
 			for (Provience provience : provienceList) {
-				dataList.add(provience.getProvienceName());
+				dataList.add(provience.getProvienceQuName());
 			}
 			adapter.notifyDataSetChanged();
 			listView.setSelection(0);
@@ -127,18 +157,19 @@ public class ChooseAreaActivity extends Activity {
 	 * 查询选中省内所有的市，优先从数据库查询，如果没有再从服务器查询
 	 */
 	private void queryCities() {
-		cityList = coolWeatherDB.loadCities(selectedProvience.getId());
+		cityList = coolWeatherDB.loadCities(selectedProvience
+				.getProviencePyName());
 		if (cityList.size() > 0) {
 			dataList.clear();
 			for (City city : cityList) {
-				dataList.add(city.getCityName());
+				dataList.add(city.getCityQuName());
 			}
 			adapter.notifyDataSetChanged();
 			listView.setSelection(0);
-			titleText.setText(selectedProvience.getProvienceName());
+			titleText.setText(selectedProvience.getProvienceQuName());
 			currentLevel = LEVEL_CITY;
 		} else {
-			queryFromServer(selectedProvience.getProvienceCode(), "city");
+			queryFromServer(selectedProvience.getProviencePyName(), "city");
 		}
 	}
 
@@ -146,18 +177,18 @@ public class ChooseAreaActivity extends Activity {
 	 * 查询选中市内所有的县，优先从数据库查询，如果没有查到，再去服务器查询。
 	 */
 	private void queryCountries() {
-		countryList = coolWeatherDB.loadCountries(selectedCity.getId());
+		countryList = coolWeatherDB.loadCountries(selectedCity.getCityPyName());
 		if (countryList.size() > 0) {
 			dataList.clear();
 			for (Country country : countryList) {
-				dataList.add(country.getCountryName());
+				dataList.add(country.getCountryQuName());
 			}
 			adapter.notifyDataSetChanged();
 			listView.setSelection(0);
-			titleText.setText(selectedCity.getCityName());
+			titleText.setText(selectedCity.getCityQuName());
 			currentLevel = LEVEL_COUNTRY;
 		} else {
-			queryFromServer(selectedCity.getCityCode(), "country");
+			queryFromServer(selectedCity.getCityPyName(), "country");
 		}
 	}
 
@@ -166,15 +197,13 @@ public class ChooseAreaActivity extends Activity {
 	 */
 	private void queryFromServer(final String code, final String type) {
 		String address;
-		if (!TextUtils.isEmpty(code)) {
-			address = "http://www.weather.com.cn/data/list3/city" + code
+		if (TextUtils.isEmpty(code)) {
+			address = "http://flash.weather.com.cn/wmaps/xml/" + "china"
 					+ ".xml";
-			Log.d("Test","number :"+2);
 		} else {
-			address = "http://www.weather.com.cn/data/list3/city.xml";
+			address = "http://flash.weather.com.cn/wmaps/xml/" + code + ".xml";
 		}
 		showProgressDialog();
-		Log.d("Test","number :"+3);
 		HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
 
 			@Override
@@ -185,10 +214,10 @@ public class ChooseAreaActivity extends Activity {
 							response);
 				} else if ("city".equals(type)) {
 					result = Utility.handleCitysRequest(coolWeatherDB,
-							response, selectedProvience.getId());
+							response, selectedProvience.getProviencePyName());
 				} else if ("country".equals(type)) {
 					result = Utility.handleallCountriesRequest(coolWeatherDB,
-							response, selectedCity.getId());
+							response, selectedCity.getCityPyName());
 				}
 				if (result) {
 					// 通过runOnUiThread()方法回到主线程处理逻辑
@@ -200,10 +229,13 @@ public class ChooseAreaActivity extends Activity {
 							closeProgressDialog();
 							if ("provience".equals(type)) {
 								queryProviences();
+							
 							} else if ("city".equals(type)) {
 								queryCities();
+								
 							} else if ("country".equals(type)) {
 								queryCountries();
+								
 							}
 
 						}
@@ -263,6 +295,10 @@ public class ChooseAreaActivity extends Activity {
 		} else if (currentLevel == LEVEL_CITY) {
 			queryProviences();
 		} else {
+			if (isFromWheatherActivity) {
+				Intent intent = new Intent(this, WeatherActivity.class);
+				startActivity(intent);
+			}
 			finish();
 		}
 	}

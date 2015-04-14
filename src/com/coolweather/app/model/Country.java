@@ -3,39 +3,39 @@ package com.coolweather.app.model;
 public class Country {
 
 	private int id;
-	private String countryName;
-	private String countryCode;
-	private int cityId;
+	private String countryQuName;
+	private String countryPyName;
+	private String cityPyName;
 
 	public int getId() {
 		return id;
 	}
 
-	public String getCountryName() {
-		return countryName;
+	public String getCountryQuName() {
+		return countryQuName;
 	}
 
-	public String getCountryCode() {
-		return countryCode;
+	public String getCountryPyName() {
+		return countryPyName;
 	}
 
-	public int getCityId() {
-		return cityId;
+	public String getCityPyName() {
+		return cityPyName;
 	}
 
 	public void setId(int id) {
 		this.id = id;
 	}
 
-	public void setCountryName(String cityName) {
-		this.countryName = cityName;
+	public void setCountryQuName(String cityName) {
+		this.countryQuName = cityName;
 	}
 
-	public void setCountryCode(String cityCode) {
-		this.countryCode = cityCode;
+	public void setCountryPyName(String cityCode) {
+		this.countryPyName = cityCode;
 	}
 
-	public void setCityId(int cityId) {
-		this.cityId = cityId;
+	public void setCityPyName(String cityId) {
+		this.cityPyName = cityId;
 	}
 }

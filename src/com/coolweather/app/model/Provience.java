@@ -3,31 +3,31 @@ package com.coolweather.app.model;
 public class Provience {
 
 	private int id;
-	private String provienceName;
-	private String provienceCode;
+	private String provienceQuName;
+	private String proviencePyName;
 
 	public int getId() {
 		return id;
 	}
 
-	public String getProvienceName() {
-		return provienceName;
+	public String getProvienceQuName() {
+		return provienceQuName;
 	}
 
-	public String getProvienceCode() {
-		return provienceCode;
+	public String getProviencePyName() {
+		return proviencePyName;
 	}
 
 	public void setId(int id) {
 		this.id = id;
 	}
 
-	public void setProvienceName(String provienceName) {
-		this.provienceName = provienceName;
+	public void setProvienceQuName(String provienceName) {
+		this.provienceQuName = provienceName;
 	}
 
-	public void setProvienceCode(String provienceCode) {
-		this.provienceCode = provienceCode;
+	public void setProviencePyName(String provienceCode) {
+		this.proviencePyName = provienceCode;
 	}
 
 }

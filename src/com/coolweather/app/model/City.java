@@ -3,32 +3,32 @@ package com.coolweather.app.model;
 public class City {
 	
 	private int id;
-	private String cityName;
-	private String cityCode;
-	private int provienceId;
+	private String cityQuName;
+	private String cityPyName;
+	private String proviencePyName;
 	public int getId() {
 		return id;
 	}
-	public String getCityName() {
-		return cityName;
+	public String getCityQuName() {
+		return cityQuName;
 	}
-	public String getCityCode() {
-		return cityCode;
+	public String getCityPyName() {
+		return cityPyName;
 	}
-	public int getProvienceId() {
-		return provienceId;
+	public String getProviencePyName() {
+		return proviencePyName;
 	}
 	public void setId(int id) {
 		this.id = id;
 	}
-	public void setCityName(String cityName) {
-		this.cityName = cityName;
+	public void setCityQuName(String CityQuName) {
+		this.cityQuName = CityQuName;
 	}
-	public void setCityCode(String cityCode) {
-		this.cityCode = cityCode;
+	public void setCityPyName(String CityPyName) {
+		this.cityPyName = CityPyName;
 	}
-	public void setProvienceId(int provienceId) {
-		this.provienceId = provienceId;
+	public void setProviencePyName(String provienceId) {
+		this.proviencePyName = provienceId;
 	}
 
 }

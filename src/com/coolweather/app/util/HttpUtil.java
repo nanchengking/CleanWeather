@@ -24,7 +24,7 @@ public class HttpUtil {
 				try {
 					URL url = new URL(address);
 					connection = (HttpURLConnection) url.openConnection();
-					connection.setRequestMethod("Get");
+					connection.setRequestMethod("GET");
 					connection.setConnectTimeout(8000);
 					connection.setReadTimeout(8000);
 					InputStream in = connection.getInputStream();
@@ -40,7 +40,6 @@ public class HttpUtil {
 					if (listener != null) {
 						//call back 
 						listener.onFinish(response.toString());
-						Log.d("Test","number :"+"µÃµ½response");
 					}
 				} catch (Exception e) {
 					if (listener != null) {
