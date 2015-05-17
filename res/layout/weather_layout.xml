@@ -123,6 +123,19 @@
             android:textColor="#FFF"
             android:textSize="40sp" />
 
+        <ImageButton
+            android:id="@+id/close_window"
+            style="@style/button_font"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tempNow"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/close_window"
+            android:hint="开/关" 
+            
+           
+            />
+
     </RelativeLayout>
 
 </LinearLayout>

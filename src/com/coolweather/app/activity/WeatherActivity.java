@@ -1,18 +1,24 @@
 package com.coolweather.app.activity;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.coolweather.app.util.HttpCallbackListener;
 import com.coolweather.app.util.HttpUtil;
@@ -31,12 +37,17 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	private Button switchCity;
 	private Button refreshWeather;
 	private TextView temNow;
+	private ImageButton closeWindow;
+	private int i=0;
+	private MediaPlayer mp;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.weather_layout);
+		
 
 		weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info_layout);
 		countryName = (TextView) findViewById(R.id.city_name);
@@ -48,9 +59,19 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		switchCity = (Button) findViewById(R.id.switch_city);
 		refreshWeather = (Button) findViewById(R.id.refresh_weather);
 		temNow=(TextView)findViewById(R.id.tempNow);
+		closeWindow=(ImageButton)findViewById(R.id.close_window);
+		mp = MediaPlayer.create(this,R.raw.music);
+
+
+		
+		
+		Log.d("Test", ""+closeWindow.isSoundEffectsEnabled());
+		
 
 		switchCity.setOnClickListener(this);
 		refreshWeather.setOnClickListener(this);
+		closeWindow.setOnClickListener(this);
+		
 
 		String quName = getIntent().getStringExtra("countryQuName");
 		String pyName = getIntent().getStringExtra("cityPyName");
@@ -161,6 +182,22 @@ public class WeatherActivity extends Activity implements OnClickListener {
 				queryWeatherPyName(pyName, quName);
 			}
 			break;
+		case R.id.close_window:
+			if(!mp.isPlaying()){
+				mp.start();
+			}
+					
+			if(i==0){
+				closeWindow.setBackgroundResource(0);			
+				closeWindow.setBackgroundResource(R.drawable.openwindow);
+				i=1;
+				Toast.makeText(this, "您的窗户已经关好！",Toast.LENGTH_SHORT).show();
+			}else{			
+				i=0;
+				closeWindow.setBackgroundResource(0);			
+				closeWindow.setBackgroundResource(R.drawable.close_window);
+				Toast.makeText(this, "您的窗户已经打开！",Toast.LENGTH_SHORT).show();
+			}				
 		default:
 			break;
 		}
