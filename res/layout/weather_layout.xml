@@ -132,9 +132,9 @@
             android:layout_centerHorizontal="true"
             android:background="@drawable/close_window"
             android:hint="开/关" 
-            
+            ></ImageButton>
+
            
-            />
 
     </RelativeLayout>
 

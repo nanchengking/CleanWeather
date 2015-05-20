@@ -5,9 +5,13 @@ import java.io.IOException;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+
 import android.media.MediaPlayer;
+
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.InputFilter.LengthFilter;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.SoundEffectConstants;
@@ -39,7 +43,9 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	private TextView temNow;
 	private ImageButton closeWindow;
 	private int i=0;
+
 	private MediaPlayer mp;
+
 
 
 	@Override
@@ -60,6 +66,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		refreshWeather = (Button) findViewById(R.id.refresh_weather);
 		temNow=(TextView)findViewById(R.id.tempNow);
 		closeWindow=(ImageButton)findViewById(R.id.close_window);
+
 		mp = MediaPlayer.create(this,R.raw.music);
 
 
@@ -68,10 +75,13 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		Log.d("Test", ""+closeWindow.isSoundEffectsEnabled());
 		
 
+
+
 		switchCity.setOnClickListener(this);
 		refreshWeather.setOnClickListener(this);
 		closeWindow.setOnClickListener(this);
-		
+
+
 
 		String quName = getIntent().getStringExtra("countryQuName");
 		String pyName = getIntent().getStringExtra("cityPyName");
@@ -183,6 +193,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 			}
 			break;
 		case R.id.close_window:
+
 			if(!mp.isPlaying()){
 				mp.start();
 			}
@@ -193,11 +204,22 @@ public class WeatherActivity extends Activity implements OnClickListener {
 				i=1;
 				Toast.makeText(this, "您的窗户已经关好！",Toast.LENGTH_SHORT).show();
 			}else{			
+
+			
+			if(i==0){
+				
+				closeWindow.setBackgroundResource(0);			
+				closeWindow.setBackgroundResource(R.drawable.openwindow);
+				i=1;
+				Toast.makeText(this, "您的窗户已经关好！",Toast.LENGTH_SHORT).show();
+			}else{
+
 				i=0;
 				closeWindow.setBackgroundResource(0);			
 				closeWindow.setBackgroundResource(R.drawable.close_window);
 				Toast.makeText(this, "您的窗户已经打开！",Toast.LENGTH_SHORT).show();
-			}				
+			}		
+			}
 		default:
 			break;
 		}
