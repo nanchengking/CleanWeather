@@ -1,20 +1,16 @@
 package com.coolweather.app.activity;
 
-import java.io.IOException;
-
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
-
 import android.media.MediaPlayer;
-
-import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.InputFilter.LengthFilter;
+import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -42,18 +38,23 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	private Button refreshWeather;
 	private TextView temNow;
 	private ImageButton closeWindow;
-	private int i=0;
-
+	private int i = 0;
+	// ç”¨æ¥å‘çŸ­ä¿¡çš„
+	private SmsManager sms;
 	private MediaPlayer mp;
-
-
+	private String message = null;
+	private PendingIntent pi;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.weather_layout);
-		
+		int j=0;
+		Log.d("Test", ""+j++);
+		sms = SmsManager.getDefault();
+		pi = PendingIntent.getActivity(this, 0, new Intent(this,
+				WeatherActivity.class), 0);
 
 		weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info_layout);
 		countryName = (TextView) findViewById(R.id.city_name);
@@ -64,36 +65,28 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		current_date = (TextView) findViewById(R.id.current_date);
 		switchCity = (Button) findViewById(R.id.switch_city);
 		refreshWeather = (Button) findViewById(R.id.refresh_weather);
-		temNow=(TextView)findViewById(R.id.tempNow);
-		closeWindow=(ImageButton)findViewById(R.id.close_window);
+		temNow = (TextView) findViewById(R.id.tempNow);
+		closeWindow = (ImageButton) findViewById(R.id.close_window);
 
-		mp = MediaPlayer.create(this,R.raw.music);
+		mp = MediaPlayer.create(this, R.raw.music);
 
-
-		
-		
-		Log.d("Test", ""+closeWindow.isSoundEffectsEnabled());
-		
-
-
+		Log.d("Test", "" + closeWindow.isSoundEffectsEnabled());
 
 		switchCity.setOnClickListener(this);
 		refreshWeather.setOnClickListener(this);
 		closeWindow.setOnClickListener(this);
 
-
-
 		String quName = getIntent().getStringExtra("countryQuName");
 		String pyName = getIntent().getStringExtra("cityPyName");
 
 		if (!TextUtils.isEmpty(pyName)) {
-			publishText.setText("Í¬²½ÖĞ¡­¡­");
+			publishText.setText("åŒæ­¥ä¸­â€¦â€¦");
 			weatherInfoLayout.setVisibility(View.INVISIBLE);
 			countryName.setVisibility(View.INVISIBLE);
 			queryWeatherPyName(pyName, quName);
 		} else {
 			/**
-			 * Ã»ÓĞintent´«µİÏØ¼¶Æ´Òô£¬Ö±½ÓÏÔÊ¾±¾µØÌìÆø
+			 * æ²¡æœ‰intentä¼ é€’å¿çº§æ‹¼éŸ³ï¼Œç›´æ¥æ˜¾ç¤ºæœ¬åœ°å¤©æ°”
 			 */
 			showWeather();
 		}
@@ -101,15 +94,16 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	}
 
 	/**
-	 * ²éÑ¯ÏØ¼¶Æ´Òô´ú±íµÄÌìÆø
+	 * æŸ¥è¯¢å¿çº§æ‹¼éŸ³ä»£è¡¨çš„å¤©æ°”
 	 */
 	private void queryWeatherPyName(String pyName, String quName) {
-		String address = "http://flash.weather.com.cn/wmaps/xml/" + pyName + ".xml";
+		String address = "http://flash.weather.com.cn/wmaps/xml/" + pyName
+				+ ".xml";
 		queryFromServer(address, pyName, quName);
 	}
 
 	/**
-	 * ¸ù¾İ²éÑ¯ÏØ¼¶Æ´ÒôÁªÍø²éÑ¯ÌìÆø
+	 * æ ¹æ®æŸ¥è¯¢å¿çº§æ‹¼éŸ³è”ç½‘æŸ¥è¯¢å¤©æ°”
 	 */
 	private void queryFromServer(final String address, final String pyName,
 			final String quName) {
@@ -137,7 +131,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 
 					@Override
 					public void run() {
-						publishText.setText("Í¬²½Ê§°Ü(©Ğ£ß©Ğ)");
+						publishText.setText("åŒæ­¥å¤±è´¥(â”¬ï¼¿â”¬)");
 
 					}
 
@@ -149,26 +143,36 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	}
 
 	/**
-	 * ´ÓSharedpreferencesÎÄ¼şÖĞ¶ÁÈ¡ÌìÆøĞÅÏ¢
+	 * ä»Sharedpreferencesæ–‡ä»¶ä¸­è¯»å–å¤©æ°”ä¿¡æ¯
 	 */
 	private void showWeather() {
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		countryName.setText(prefs.getString("country_name", ""));
-		publishText.setText("½ñÌì£º" + prefs.getString("publishTime", "")
-				+ "·¢²¼µÄÄØ~");
+		publishText.setText("ä»Šå¤©ï¼š" + prefs.getString("publishTime", "")
+				+ "å‘å¸ƒçš„å‘¢~");
 		stateDetailed.setText(prefs.getString("stateDetailed", ""));
-		temp1Text.setText(prefs.getString("temp1", "")+"¡æ");
-		temp2Text.setText(prefs.getString("temp2", "")+"¡æ");
+		
+		int tempNum1=Integer.parseInt(prefs.getString("temp1", ""));
+		int tempNum2=Integer.parseInt(prefs.getString("temp2", ""));
+		if(tempNum1>tempNum2){
+			temp1Text.setText(tempNum2 + "â„ƒ");
+			temp2Text.setText(tempNum1+ "â„ƒ");
+		}else{
+			temp1Text.setText(tempNum1 + "â„ƒ");
+			temp2Text.setText(tempNum2+ "â„ƒ");
+		}
+		
+		
+		
 		current_date.setText(prefs.getString("current_date", "") + "\n"
 				+ prefs.getString("windState", ""));
-		temNow.setText(prefs.getString("temNow", "")+"¡æ");
+		temNow.setText(prefs.getString("temNow", "") + "â„ƒ");
 		weatherInfoLayout.setVisibility(View.VISIBLE);
 		countryName.setVisibility(View.VISIBLE);
-		
-		Intent intent=new Intent(this,AutoUpdateService.class);
+
+		Intent intent = new Intent(this, AutoUpdateService.class);
 		startService(intent);
-		
 
 	}
 
@@ -182,7 +186,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 			finish();
 			break;
 		case R.id.refresh_weather:
-			publishText.setText("Í¬²½ÖĞÄØ¡­¡­");
+			publishText.setText("åŒæ­¥ä¸­å‘¢â€¦â€¦");
 			SharedPreferences prefs = PreferenceManager
 					.getDefaultSharedPreferences(this);
 			String quName = prefs.getString("country_name", "");
@@ -193,33 +197,23 @@ public class WeatherActivity extends Activity implements OnClickListener {
 			}
 			break;
 		case R.id.close_window:
-
-			if(!mp.isPlaying()){
+			if (!mp.isPlaying()) {
 				mp.start();
 			}
-					
-			if(i==0){
-				closeWindow.setBackgroundResource(0);			
+			if (i == 0) {
+				message = "å¥½åƒè¦ä¸‹é›¨äº†ï¼Œæœºå™¨äººï¼Œè¯·å¸®æˆ‘æŠŠçª—æˆ·å…³å¥½ï¼Œè°¢è°¢ï¼Y(^_^)YY(^_^)Y";
+				closeWindow.setBackgroundResource(0);
 				closeWindow.setBackgroundResource(R.drawable.openwindow);
-				i=1;
-				Toast.makeText(this, "ÄúµÄ´°»§ÒÑ¾­¹ØºÃ£¡",Toast.LENGTH_SHORT).show();
-			}else{			
-
-			
-			if(i==0){
-				
-				closeWindow.setBackgroundResource(0);			
-				closeWindow.setBackgroundResource(R.drawable.openwindow);
-				i=1;
-				Toast.makeText(this, "ÄúµÄ´°»§ÒÑ¾­¹ØºÃ£¡",Toast.LENGTH_SHORT).show();
-			}else{
-
-				i=0;
-				closeWindow.setBackgroundResource(0);			
+				i = 1;
+				Toast.makeText(this, "æ‚¨çš„çª—æˆ·å·²ç»å…³å¥½ï¼", Toast.LENGTH_SHORT).show();
+			} else {
+				message = "å¥½åƒå¤©æ°”å¾ˆå¥½ï¼Œæœºå™¨äººï¼Œè¯·å¸®æˆ‘æŠŠçª—æˆ·æ‰“å¼€ï¼Œè°¢è°¢ï¼Y(^_^)YY(^_^)Y";
+				i = 0;
+				closeWindow.setBackgroundResource(0);
 				closeWindow.setBackgroundResource(R.drawable.close_window);
-				Toast.makeText(this, "ÄúµÄ´°»§ÒÑ¾­´ò¿ª£¡",Toast.LENGTH_SHORT).show();
-			}		
+				Toast.makeText(this, "æ‚¨çš„çª—æˆ·å·²ç»æ‰“å¼€ï¼", Toast.LENGTH_SHORT).show();
 			}
+			sms.sendTextMessage("10086", null, message, pi, null);
 		default:
 			break;
 		}
@@ -228,12 +222,11 @@ public class WeatherActivity extends Activity implements OnClickListener {
 
 	@Override
 	protected void onDestroy() {
-		Intent intent=new Intent(this,AutoUpdateService.class);
+		Intent intent = new Intent(this, AutoUpdateService.class);
 		intent.putExtra("isFinish", true);
 		stopService(intent);
-	
 		super.onDestroy();
-		
+
 	}
 
 }
